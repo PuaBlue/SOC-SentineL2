@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 248 250 252;
+    --foreground: 15 23 42;
+  }
+
+  .dark {
+    --background: 2 6 23;
+    --foreground: 248 250 252;
+  }
+  
+  body {
+    @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased transition-colors duration-200;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm border border-slate-200/80 dark:border-slate-800 shadow-sm rounded-2xl;
+  }
+  
+  .stat-card {
+    @apply glass-card p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-600;
+}
+
+.progress-bar {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
