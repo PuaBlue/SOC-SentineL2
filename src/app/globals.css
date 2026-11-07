@@ -50,3 +50,27 @@
 .progress-bar {
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Recharts Tooltip Dark Mode Fix */
+.recharts-default-tooltip {
+  border-radius: 0.75rem !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.15), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .recharts-default-tooltip * {
+  color: #f8fafc !important;
+}
+
+.dark .recharts-tooltip-item,
+.dark .recharts-tooltip-item-name,
+.dark .recharts-tooltip-item-separator,
+.dark .recharts-tooltip-item-value,
+.dark .recharts-tooltip-label {
+  color: #f8fafc !important;
+}

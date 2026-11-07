@@ -20,6 +20,42 @@ export interface LogEntry {
 // Severity levels for security findings
 export type SeverityLevel = 'Critical' | 'High' | 'Medium' | 'Low';
 
+// Threat Intelligence IP Reputation (AbuseIPDB & VirusTotal)
+export interface IPReputation {
+  ip: string;
+  isPrivate: boolean;
+  country?: string;
+  countryCode?: string;
+  isp?: string;
+  domain?: string;
+  usageType?: string;
+  // AbuseIPDB
+  abuseConfidenceScore?: number; // 0 - 100
+  totalReports?: number;
+  lastReportedAt?: string;
+  // VirusTotal
+  vtMalicious?: number;
+  vtSuspicious?: number;
+  vtHarmless?: number;
+  vtUndetected?: number;
+  vtTotalVendors?: number;
+  vtReputationScore?: number;
+  // Verdict
+  verdict: 'Malicious' | 'Suspicious' | 'Clean' | 'Private' | 'Unknown';
+  source: 'AbuseIPDB' | 'VirusTotal' | 'Both' | 'Internal' | 'Simulated';
+  checkedAt: string;
+}
+
+export interface ThreatIntelConfig {
+  autoEnrich: boolean;
+  abuseApiKey?: string;
+  vtApiKey?: string;
+  abuseConfigured?: boolean;
+  vtConfigured?: boolean;
+  abuseSource?: 'env' | 'cookie' | 'none';
+  vtSource?: 'env' | 'cookie' | 'none';
+}
+
 // Security finding detected by the AI analysis engine
 export interface SecurityFinding {
   id: string;
@@ -36,6 +72,7 @@ export interface SecurityFinding {
   mitreId?: string;
   timestamp: string;
   confidence: number; // 0-100
+  threatIntel?: Record<string, IPReputation>;
 }
 
 export type FindingType =
@@ -86,6 +123,11 @@ export interface AppState {
   fileName: string;
   uploadDate: string;
   currentView: 'upload' | 'dashboard' | 'analysis' | 'reports';
+  threatIntel: {
+    reputations: Record<string, IPReputation>;
+    isEnriching: boolean;
+    config: ThreatIntelConfig;
+  };
 }
 
 // Language & Theme
@@ -171,6 +213,23 @@ export interface TranslationStrings {
   report_select_findings: string;
   report_all_findings: string;
   report_filter_by_severity: string;
+  
+  // Threat Intelligence
+  ti_title: string;
+  ti_subtitle: string;
+  ti_enrich_btn: string;
+  ti_enriching: string;
+  ti_api_keys: string;
+  ti_save_keys: string;
+  ti_abuse_key: string;
+  ti_vt_key: string;
+  ti_reputation: string;
+  ti_confidence: string;
+  ti_reports: string;
+  ti_verdict_malicious: string;
+  ti_verdict_suspicious: string;
+  ti_verdict_clean: string;
+  ti_verdict_private: string;
   
   // Theme
   theme_toggle: string;

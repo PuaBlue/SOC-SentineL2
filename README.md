@@ -1,6 +1,6 @@
 # SOC Sentinel — Security Log Analyzer & Forensic Reporting
 
-Plataforma web de ciberseguridad para analistas de **SOC Nivel 2**, orientada al análisis forense de logs exportados de SIEMs y a la generación automatizada de informes técnicos y ejecutivos en PDF.
+Plataforma web de ciberseguridad para analistas de **SOC Nivel 2**, orientada al análisis forense de logs exportados de SIEMs, enriquecimiento de telemetría mediante **Threat Intelligence (VirusTotal & AbuseIPDB)** y generación automatizada de informes técnicos y ejecutivos en PDF.
 
 ---
 
@@ -14,11 +14,12 @@ Plataforma web de ciberseguridad para analistas de **SOC Nivel 2**, orientada al
 
 ### 2. Dashboard de Ciberseguridad Interactivo
 - **KPIs clave**: Total de registros analizados, hallazgos categorizados por criticidad (Crítico, Alto, Medio, Bajo), IPs origen únicas y cuentas de usuario activas.
+- **Telemetría de Threat Intelligence**: Banner de estado con total de IPs consultadas y detección de hosts maliciosos externos.
 - **Gráficos interactivos (Recharts)**:
-  - Ratio de criticidad de eventos (Gráfico de pastel/dona).
+  - Ratio de criticidad de eventos (Gráfico de pastel/dona) con tooltips optimizados para temas claro y oscuro.
   - Distribución de hallazgos por tácticas y técnicas de ataque (Gráfico de barras horizontal).
   - Línea de tiempo de eventos por severidad (Gráfico de área acumulada temporal).
-  - Ranking de principales IPs origen y usuarios con mayor actividad volumétrica.
+  - Ranking de principales IPs origen con distintivos de reputación (**VirusTotal** y **AbuseIPDB**).
   - Clasificación de eventos según su acción o categoría SIEM.
 
 ### 3. Motor Analítico Forense con Rigor Cero-Alucinación
@@ -30,22 +31,34 @@ El motor correlaciona registros inmutables sin inventar datos, sustentando cada 
 5. **Movimiento Lateral (MITRE ATT&CK T1021 / T1550.002)**: Correlaciona accesos remotos entre múltiples estaciones de trabajo vía SMB/RDP/WinRM con indicadores de Pass-the-Hash y relay de credenciales.
 - **Inspector de logs relacionados**: Modal para auditar y revisar línea por línea los registros exactos que justifican cada hallazgo.
 
-### 4. Módulo de Reportes & Exportación PDF
+### 4. Inteligencia de Amenazas Externa (VirusTotal & AbuseIPDB)
+- **Consulta de reputación para Source IPs**:
+  - **AbuseIPDB (API v2)**: Puntuación de confianza de abuso (`Abuse Confidence Score`), volumen histórico de reportes maliciosos, proveedor de servicios de Internet (`ISP`), tipo de uso (`usageType`) y país de origen.
+  - **VirusTotal (API v3)**: Motores de seguridad que catalogan la IP como maliciosa (`last_analysis_stats`), ratio de detección sobre proveedores globales (ej. `16/94 vendors`) y reputación del sistema autónomo (`AS Owner`).
+- **Arquitectura Segura (Cero localStorage / Protección contra XSS)**:
+  - Las claves de API **NUNCA** se almacenan en el `localStorage` del navegador para evitar su extracción por código JavaScript no autorizado.
+  - **Variables de Entorno del Servidor (`.env.local`)**: Modo recomendado donde `process.env.ABUSEIPDB_API_KEY` y `process.env.VIRUSTOTAL_API_KEY` se ejecutan exclusivamente en el entorno de backend de Next.js sin exponerse al cliente.
+  - **Cookies de Sesión Seguras `HttpOnly`**: Si el analista ingresa claves desde la interfaz, se envían al endpoint `/api/threat-intel/keys` que establece cookies con directivas `HttpOnly`, `SameSite=Strict` y `Secure`, inaccesibles para cualquier script de cliente vía `document.cookie`.
+- **Filtrado RFC 1918 automático**: Las IPs de subredes privadas (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.1`, nombres de host internos) se categorizan instantáneamente como `Private`, evitando consumo innecesario de cuota de API.
+- **Modo demostración SOC**: Si el usuario no ha ingresado claves personales, la plataforma provee telemetría de laboratorio de alta fidelidad para IPs atacantes conocidas (ej. `198.51.100.45`), permitiendo evaluar la plataforma de inmediato.
+- **Elevación de confianza**: Los hallazgos cuyas direcciones IP origen sean corroboradas como maliciosas elevan automáticamente su puntaje de confianza e incorporan evidencia de Threat Intel en los indicadores.
+
+### 5. Módulo de Reportes & Exportación PDF
 - **Tipos de informe**:
-  - **Resumen Ejecutivo**: Dirigido a directivos y C-Level (impacto en el negocio, métricas macro, riesgos prioritarios y recomendaciones estratégicas).
-  - **Reporte Técnico**: Dirigido a equipos de respuesta a incidentes y SOC (mapeo MITRE ATT&CK, justificación técnica, lista de IoCs, activos comprometidos y telemetría forense).
-- **Soporte Bilingüe**: Generación de reportes en **Inglés** o **Español**.
-- **Personalización**: Título, autor/analista, organización y selección granular de hallazgos a incluir.
-- **Vista previa en tiempo real**: Visualización del documento antes de exportar.
+  - **Resumen Ejecutivo**: Dirigido a directivos y C-Level (narrativa clara no técnica, impacto comercial estimado en confidencialidad, continuidad operativa, cumplimiento y reputación, y plan de acción priorizado).
+  - **Reporte Técnico**: Dirigido a equipos de respuesta a incidentes y SOC (mapeo MITRE ATT&CK, justificación técnica, lista de IoCs, bloque de Threat Intel VirusTotal/AbuseIPDB, tabla enriquecida de IPs origen y telemetría forense).
+- **Selección granular por criticidad**: Filtros por severidad (Crítico, Alto, Medio, Bajo), preajustes rápidos y selección individual de alertas a incluir en el reporte.
+- **Soporte Bilingüe Sincronizado**: Generación en **Inglés** o **Español**, sincronizado con el idioma activo de la aplicación.
 - **Exportación en PDF**: Generado localmente con `jsPDF` y `jspdf-autotable`.
 
 ---
 
 ## 🛠️ Stack Tecnológico
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router, React 19)
+- **Framework**: [Next.js](https://nextjs.org/) 15 (App Router, React 19)
 - **Lenguaje**: TypeScript
-- **Estilos**: Tailwind CSS (diseño moderno, minimalista, modo SOC)
+- **Estilos**: Tailwind CSS (soporte nativo para Tema Oscuro y Claro)
+- **Threat Intelligence**: VirusTotal v3 API & AbuseIPDB v2 API (Backend Proxy & HttpOnly Session Cookies)
 - **Procesamiento de Hojas de Cálculo**: [SheetJS (xlsx)](https://docs.sheetjs.com/)
 - **Visualización de Datos**: [Recharts](https://recharts.org/)
 - **Generación de PDFs**: [jsPDF](https://github.com/parallax/jsPDF) & [jspdf-autotable](https://github.com/simonbengtsson/jsPDF-AutoTable)
@@ -53,20 +66,26 @@ El motor correlaciona registros inmutables sin inventar datos, sustentando cada 
 
 ---
 
-## 💻 Instrucciones de Ejecución
+## 💻 Configuración de Claves de API & Ejecución
 
-Para iniciar el servidor de desarrollo local:
+### Opción 1: Variables de Entorno del Servidor (Recomendado)
+Cree un archivo `.env.local` en la raíz del proyecto (basado en `.env.example`):
 
-```bash
-# En el directorio del proyecto (g:\Projects\Final-Project-BDL2)
-npm run dev
+```env
+ABUSEIPDB_API_KEY=su_clave_abuseipdb_aqui
+VIRUSTOTAL_API_KEY=su_clave_virustotal_aqui
 ```
 
-Abra su navegador en [http://localhost:3000](http://localhost:3000).
+### Opción 2: Sesión Dinámica desde la UI
+Abra el modal de **Threat Intelligence** en la app. Las claves ingresadas se almacenan únicamente en una cookie de sesión con el atributo `HttpOnly`, inaccesible para JavaScript en el navegador.
 
-Para compilar la versión optimizada de producción:
+### Iniciar el servidor:
 
 ```bash
+# Servidor de desarrollo
+npm run dev
+
+# Servidor de producción
 npm run build
 npm run start
 ```

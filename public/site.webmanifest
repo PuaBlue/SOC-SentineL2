@@ -1,0 +1,24 @@
+{
+  "name": "SOC Sentinel — Security Log Analyzer & Forensic Reporting",
+  "short_name": "SOC Sentinel",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1e1b4b",
+  "background_color": "#020617",
+  "display": "standalone"
+}

